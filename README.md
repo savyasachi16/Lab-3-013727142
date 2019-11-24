@@ -19,7 +19,7 @@ brew install nodejs
 To install Node.js on Linux:
 ```
 brew install nodejs
-``
+```
 
 ### Installing
 
