@@ -46,6 +46,9 @@ To run the server, go into the server directory and run the following command:
 npm start
 ```
 
+To use the application, visit the following url from your browser:
+http://localhost:3001/
+
 ## License
 
 This project is licensed under the MIT License.
