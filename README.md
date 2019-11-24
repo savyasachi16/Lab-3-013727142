@@ -28,44 +28,23 @@ Clone the contents of the Git repository to your local:
 git clone https://github.com/savyasachi16/Grubhub-Prototype.git
 ```
 
-And repeat
-
+Go into the client directory and run the following command:
 ```
-until finished
+npm install
 ```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
+Go into the server directory and run the following command:
 ```
-Give an example
+npm install
 ```
 
-### And coding style tests
-
-Explain what these tests test and why
-
+To run the client, go into the client directory and run the following command:
 ```
-Give an example
+npm start
 ```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
+To run the server, go into the server directory and run the following command:
+```
+npm start
+```
 
 ## License
 
