@@ -5,28 +5,8 @@ import {
 } from "redux";
 import rootReducer from "../reducers/index";
 import thunk from "redux-thunk";
-import axios from "axios";
-import cookie from "js-cookie";
 import * as storage from 'redux-storage';
 import createEngine from 'redux-storage-engine-localstorage';
-
-
-axios.interceptors.request.use((config) => {
-    const token = cookie.get('token');
-    if (token) {
-        config.headers.Authorization = `JWT ${token}`;
-    }
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-});
-
-axios.interceptors.response.use(response => {
-        return response
-    },
-    error => {
-        return Promise.reject(error)
-    })
 
 const storeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const reducer = storage.reducer(rootReducer);

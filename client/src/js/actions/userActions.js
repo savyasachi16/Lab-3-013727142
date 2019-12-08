@@ -1,115 +1,74 @@
 import actionTypes from "../constants/index";
-import axios from "axios";
-import cookie from "js-cookie";
-import {
-    toast
-} from "react-toastify";
-
 
 const loginUser = (payload, ownProps) => {
     return dispatch => {
-        return axios.post("http://localhost:3001/login", payload).then(response => {
-            if (response.status === 200) {
-                const userData = response.data;
-                cookie.set("token", userData.token, {
-                    expires: 1
-                })
-                dispatch({
-                    type: actionTypes.SET_USER,
-                    payload: userData
-                });
-                if (userData.account_type === "Vendor") {
-                    ownProps.history.push(`/${userData.id}/profile`);
-                } else {
-                    ownProps.history.push(`/${userData.id}/search`);
-                }
-            }
-        }).catch(err => {
-            console.log("Login error:", err)
-            toast.error("User not found! Try creating an account?");
+        dispatch({
+            type: actionTypes.SET_USER,
+            payload
         });
+        if (payload.type === 'Vendor') {
+            ownProps.history.push(`/${payload.id}/account`);
+        } else {
+            ownProps.history.push(`/${payload.id}/search`);
+        }
     }
 }
 
 const registerUser = (payload, ownProps) => {
     return dispatch => {
-        return axios.post("http://localhost:3001/register", payload).then(response => {
-            if (response.status === 200) {
-                const userData = response.data;
-                cookie.set("token", userData.token, {
-                    expires: 1
-                })
-                dispatch({
-                    type: actionTypes.SET_USER,
-                    payload: userData
-                });
-                if (userData.account_type === "Vendor") {
-                    ownProps.history.push(`/login-vendor`);
-                } else {
-                    ownProps.history.push(`/login-user`);
-                }
-            }
+        dispatch({
+            type: actionTypes.SET_USER,
+            payload
         });
-    };
-};
-
-const updateUser = payload => {
-    console.log("In updateUser:", payload)
-    return dispatch => {
-        return axios.put(`http://localhost:3001/userUpdate/${payload.id}`, payload)
-            .then(response => {
-                if (response.status === 200) {
-                    const userData = response.data.user;
-                    userData.update_success = true;
-                    dispatch({
-                        type: actionTypes.SET_USER,
-                        payload: userData
-                    });
-                    if (userData.type === "Vendor") {
-                        const restaurantData = response.data.restaurant;
-                        dispatch({
-                            type: actionTypes.SET_RESTAURANT,
-                            payload: restaurantData
-                        });
-                    }
-                    toast.success("Successfully updated data!")
-                }
-            })
+        if (payload.account_type === "Vendor") {
+            ownProps.history.push(`/login-vendor`);
+        } else {
+            ownProps.history.push(`/login-user`);
+        }
     }
 }
 
-const getUser = payload => {
-    return dispatch => {
-        return axios.get(`http://localhost:3001/user/${payload.user_id}`)
-            .then(response => {
-                if (response.status === 200) {
-                    const userData = response.data;
-                    dispatch({
-                        type: actionTypes.SET_USER,
-                        payload: userData
-                    })
-                }
-            })
-    }
-}
+// const updateUser = payload => {
+//     console.log("In updateUser:", payload)
+//     return dispatch => {
+//         return axios.put(`http://localhost:3001/userUpdate/${payload.id}`, payload)
+//             .then(response => {
+//                 if (response.status === 200) {
+//                     const userData = response.data.user;
+//                     userData.update_success = true;
+//                     dispatch({
+//                         type: actionTypes.SET_USER,
+//                         payload: userData
+//                     });
+//                     if (userData.type === "Vendor") {
+//                         const restaurantData = response.data.restaurant;
+//                         dispatch({
+//                             type: actionTypes.SET_RESTAURANT,
+//                             payload: restaurantData
+//                         });
+//                     }
+//                     toast.success("Successfully updated data!")
+//                 }
+//             })
+//     }
+// }
 
-const uploadProfileImage = payload => {
-    return dispatch => {
-        return axios.post(`http://localhost:3001/upload/image`, payload).then(response => {
-            if (response.status === 200) {
-                dispatch({
-                    type: actionTypes.SET_PROFILE_PIC,
-                    payload: response.data
-                })
-            }
-        })
-    }
-}
+// const getUser = payload => {
+//     return dispatch => {
+//         return axios.get(`http://localhost:3001/user/${payload.user_id}`)
+//             .then(response => {
+//                 if (response.status === 200) {
+//                     const userData = response.data;
+//                     dispatch({
+//                         type: actionTypes.SET_USER,
+//                         payload: userData
+//                     })
+//                 }
+//             })
+//     }
+// }
 
 export {
     registerUser,
-    loginUser,
-    updateUser,
-    getUser,
-    uploadProfileImage
+    loginUser
 };

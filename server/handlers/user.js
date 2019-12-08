@@ -187,31 +187,9 @@ const getUser = id => {
     })
 }
 
-const uploadUserImage = file => {
-    return uploader
-        .upload(file, {
-            transformation: [{
-                width: 175,
-                height: 125,
-                crop: "scale"
-            }]
-        })
-        .then(result => {
-            const image = result.url;
-            return ({
-                image
-            });
-        })
-        .catch(err => ({
-            messge: "Error while uploading image to repo: ",
-            err
-        }));
-};
-
 export {
     registerUser,
     loginUser,
     updateUser,
     getUser,
-    uploadUserImage
 };

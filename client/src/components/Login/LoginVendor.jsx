@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { userActions } from "../../js/actions/index";
 import { connect } from "react-redux";
+import { graphql, compose } from "react-apollo";
 import { ToastContainer } from "react-toastify";
-
+import { userActions } from "../../js/actions/index";
+import { loginUserMutation } from "../../mutations/userMutations";
 class LoginVendor extends Component {
   constructor() {
     super();
@@ -20,7 +21,16 @@ class LoginVendor extends Component {
   handleVendorLogin = e => {
     e.preventDefault();
     const payload = this.state;
-    this.props.loginUser(payload);
+    this.props
+      .loginUserMutation({
+        variables: {
+          email: payload.email,
+          password: payload.password
+        }
+      })
+      .then(response => {
+        this.props.loginUser(response.data.loginUser);
+      });
   };
 
   render() {
@@ -90,11 +100,11 @@ class LoginVendor extends Component {
 const mapStateToProps = state => ({
   user: state.user
 });
-const mapDispathToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch, ownProps) => ({
   loginUser: payload => dispatch(userActions.loginUser(payload, ownProps))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispathToProps
+export default compose(
+  graphql(loginUserMutation, { name: "loginUserMutation" }),
+  connect(mapStateToProps, mapDispatchToProps)
 )(LoginVendor);

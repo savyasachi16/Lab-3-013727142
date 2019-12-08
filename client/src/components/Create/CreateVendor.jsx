@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { userActions } from "../../js/actions/index";
 import { connect } from "react-redux";
+import { graphql, compose } from "react-apollo";
+import { userActions } from "../../js/actions";
+import { registerUserMutation } from "../../mutations/userMutations";
 
 class CreateVendor extends Component {
   constructor() {
@@ -23,7 +25,21 @@ class CreateVendor extends Component {
   handleCreate = e => {
     e.preventDefault();
     const payload = this.state;
-    this.props.registerUser(payload);
+    this.props
+      .registerUserMutation({
+        variables: {
+          first_name: payload.first_name,
+          last_name: payload.last_name,
+          email: payload.email,
+          password: payload.password,
+          account_type: payload.account_type,
+          phone: payload.phone,
+          address: payload.address
+        }
+      })
+      .then(response => {
+        this.props.registerUser(response.data.registerUser);
+      });
   };
 
   render() {
@@ -83,9 +99,7 @@ class CreateVendor extends Component {
                     </div>
                     <div className="form-row">
                       <div className="form-group col-md-12">
-                        <label htmlFor="password">
-                          Password
-                        </label>
+                        <label htmlFor="password">Password</label>
                         <input
                           type="password"
                           className="form-control"
@@ -120,7 +134,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   registerUser: payload => dispatch(userActions.registerUser(payload, ownProps))
 });
 
-export default connect(
-  null,
-  mapDispatchToProps
+export default compose(
+  graphql(registerUserMutation, { name: "registerUserMutation" }),
+  connect(null, mapDispatchToProps)
 )(CreateVendor);
