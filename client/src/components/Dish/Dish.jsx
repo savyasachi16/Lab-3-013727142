@@ -1,10 +1,11 @@
 import React, { Component } from "react";
+import { graphql, compose } from "react-apollo";
 import { connect } from "react-redux";
 import { dishActions } from "../../js/actions/index";
 import { Container, Row, Col, Image } from "react-bootstrap";
 import Sidebar from "../Sidebar/Sidebar";
 import { toast } from "react-toastify";
-
+import { getDishQuery, addDishQuery } from "../../mutation/mutation";
 class Dish extends Component {
   constructor(props) {
     super(props);
@@ -22,9 +23,15 @@ class Dish extends Component {
   }
   componentDidMount() {
     if (this.props.match.params.dish_id) {
-      this.props.getDish({
-        dish_id: this.props.match.params.dish_id
-      });
+      this.props
+        .getDishQuery({
+          variables: {
+            dish_id: this.props.match.params.dish_id
+          }
+        })
+        .then(response => {
+          this.props.getDish(response.data.getDish);
+        });
     } else {
       this.setState({
         restaurant_id: this.props.restaurant_id
@@ -64,7 +71,9 @@ class Dish extends Component {
   handleAdd = e => {
     e.preventDefault();
     const payload = this.state;
-    this.props.addDish(payload);
+    this.props.addDishQuery({ variables: payload }).then(response => {
+      this.props.addDish(response.data.addDish);
+    });
   };
 
   handleDelete = e => {
@@ -255,7 +264,8 @@ const mapDispathToProps = (dispatch, ownProps) => ({
   uploadDishImage: payload => dispatch(dishActions.uploadDishImage(payload))
 });
 
-export default connect(
-  mapStatetoProps,
-  mapDispathToProps
+export default compose(
+  graphql(getDishQuery, { name: "getDishQuery" }),
+  graphql(addDishQuery, { name: "addDishQuery" }),
+  connect(mapStatetoProps, mapDispathToProps)
 )(Dish);

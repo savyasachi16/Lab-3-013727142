@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { graphql, compose } from "react-apollo";
 import { buyerActions } from "../../js/actions/index";
 import Navigbar from "../Navbar/Navbar";
-
+import { searchDish } from "../../mutations/dishMutations";
 class Search extends Component {
   constructor() {
     super();
@@ -20,7 +21,13 @@ class Search extends Component {
     const payload = {
       search: this.state.search
     };
-    this.props.getResults(payload);
+    this.props
+      .searchItem({
+        variables: payload
+      })
+      .then(response => {
+        this.props.getResults(response.data.searchDish);
+      });
   };
   render() {
     return (
@@ -60,7 +67,7 @@ const mapDispathToProps = (dispatch, ownProps) => ({
   getResults: payload => dispatch(buyerActions.getResults(payload, ownProps))
 });
 
-export default connect(
-  null,
-  mapDispathToProps
+export default compose(
+  graphql(searchDish, { name: "searchDish" }),
+  connect(null, mapDispathToProps)
 )(Search);

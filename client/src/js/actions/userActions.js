@@ -1,4 +1,8 @@
 import actionTypes from "../constants/index";
+import {
+    toast
+} from "react-toastify";
+
 
 const loginUser = (payload, ownProps) => {
     return dispatch => {
@@ -28,8 +32,32 @@ const registerUser = (payload, ownProps) => {
     }
 }
 
+const updateUser = payload => {
+    return dispatch => {
+        const userData = payload;
+        dispatch({
+            type: actionTypes.SET_USER,
+            payload: payload.userData
+        });
+        if (userData.account_type === "Vendor") {
+            const restaurantData = {
+                id: payload.restaurant_id,
+                name: payload.restaurant_name,
+                address: payload.restaurant_address,
+                zipcode: payload.restaurant_zipcode,
+                image: payload.restaurant_image,
+                cuisine: payload.cuisine
+
+            };
+            dispatch({
+                type: actionTypes.SET_RESTAURANT,
+                payload: restaurantData
+            });
+        }
+
+    }
+}
 // const updateUser = payload => {
-//     console.log("In updateUser:", payload)
 //     return dispatch => {
 //         return axios.put(`http://localhost:3001/userUpdate/${payload.id}`, payload)
 //             .then(response => {
@@ -70,5 +98,6 @@ const registerUser = (payload, ownProps) => {
 
 export {
     registerUser,
-    loginUser
+    loginUser,
+    updateUser,
 };

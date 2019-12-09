@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { graphql, compose } from "react-apollo";
+import {updateUserMutation} from "../../mutations/userMutations";
+import {getRestaurantQuery} from "../../mutations/restaurantMutations";
 import { userActions, vendorActions } from "../../js/actions/index";
 import { ToastContainer, toast } from "react-toastify";
 import { Container, Row, Col, Image } from "react-bootstrap";
@@ -41,7 +44,11 @@ class Profile extends Component {
       image
     } = this.props.user;
     if (account_type === "Vendor") {
-      this.props.getRestaurant({ user_id: id });
+      this.props
+        .getRestaurantQuery({ variables: { user_id: id } })
+        .then(response => {
+          this.props.getRestaurant(response.data.getRestaurantQuery);
+        });
     }
     const restaurant = this.props.restaurant;
     this.setState({
@@ -100,7 +107,11 @@ class Profile extends Component {
   handleUpdate = e => {
     e.preventDefault();
     const payload = this.state;
-    this.props.updateUser(payload);
+    payload.user_id = this.props.user.id;
+    payload.restaurant_zipcode = parseInt(payload.restaurant_zipcode);
+    this.props.updateUserMutation({ variables: payload }).then(response => {
+      this.props.updateUser(response.data.updateUser);
+    });
   };
 
   handleUpload = e => {
@@ -391,7 +402,7 @@ const mapDispatchToProps = dispatch => ({
   uploadRestaurantImage: payload =>
     dispatch(vendorActions.uploadRestaurantImage(payload))
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Profile);
+export default compose(
+  graphql(updateUserMutation, { name: "updateUserMutation" }),
+  graphql(getRestaurantQuery, { name: "getRestaurantQuery" })
+)(connect(mapStateToProps, mapDispatchToProps))(Profile);

@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { graphql, compose } from "react-apollo";
 import { connect } from "react-redux";
 import { vendorActions } from "../../js/actions/index";
 import _ from "lodash";
 import { Container, Row, Card } from "react-bootstrap";
 import Sidebar from "../Sidebar/Sidebar";
-
+import { getRestaurantMenu } from "../../mutations/restaurantMutations";
 class vendorMenu extends Component {
   constructor() {
     super();
@@ -15,10 +16,19 @@ class vendorMenu extends Component {
     };
   }
   componentDidMount() {
-    this.props.getMenu({
-      restaurant_id: this.props.restaurant.id
-    });
+    if (this.props.restaurant && this.props.restaurant.id) {
+      this.props
+        .getRestaurantMenu({
+          variables: {
+            restaurant_id: this.props.restaurant.id
+          }
+        })
+        .then(response => {
+          this.props.getMenu(response.data.getRestaurantMenu);
+        });
+    }
   }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.restaurant.menu && nextProps.restaurant.menu.length) {
       const sections = nextProps.restaurant.menu.map(eachSection => ({
@@ -173,7 +183,7 @@ const mapDispatchToProps = dispatch => ({
   deleteSection: payload => dispatch(vendorActions.deleteSection(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+export default compose(
+  graphql(getRestaurantMenu, { name: "getRestaurantMenu" }),
+  connect(mapStateToProps, mapDispatchToProps)
 )(vendorMenu);
