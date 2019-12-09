@@ -31,7 +31,33 @@ const getRestaurantMenu = gql `
     }	    
   }
 `;
+
+const getCurrentRestaurant = gql `
+mutation getCurrentRestaurant($restaurant_id: ID) {
+  getCurrentRestaurant(restaurant_id: $restaurant_id) {
+      id
+      name
+      cuisine
+      address
+      zipcode
+      user_id
+      menu {
+        section
+        id
+        items {
+          id
+          name
+          rate
+          description
+          image
+          section
+        }
+      }
+  }
+}
+`;
 export {
     getRestaurantQuery,
-    getRestaurantMenu
+    getRestaurantMenu,
+    getCurrentRestaurant
 };

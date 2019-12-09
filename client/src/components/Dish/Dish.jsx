@@ -5,7 +5,7 @@ import { dishActions } from "../../js/actions/index";
 import { Container, Row, Col, Image } from "react-bootstrap";
 import Sidebar from "../Sidebar/Sidebar";
 import { toast } from "react-toastify";
-import { getDishQuery, addDishQuery } from "../../mutation/mutation";
+import { getDishQuery, addDishQuery } from "../../mutations/dishMutations";
 class Dish extends Component {
   constructor(props) {
     super(props);

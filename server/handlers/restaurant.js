@@ -117,7 +117,7 @@ const getRestaurantDetails = restaurant_id => {
         return getRestaurantMenu(restaurant_id).then(menu => {
             restaurant.dataValues.menu = menu;
             return {
-                current_restaurant: restaurant
+                restaurant
             };
         });
     });

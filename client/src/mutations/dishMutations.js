@@ -16,10 +16,10 @@ mutation getItem($dish_id: ID) {
 `;
 
 const addDishQuery = gql `
-mutation addItem(
+mutation addDish(
     $name: String $rate: String $description: String $image: String $section: String $restaurant_id: ID
 ) {
-    addItem(
+    addDish(
         name: $name rate: $rate description: $description image: $image section: $section restaurant_id: $restaurant_id
     ) {
         id

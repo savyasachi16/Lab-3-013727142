@@ -3,6 +3,12 @@ const _ = require("lodash");
 import {
     Users
 } from '../src/sequelize';
+import {
+    GraphQLError
+} from "graphql";
+import bcrypt from "bcrypt";
+const SALT_ROUND = 10;
+
 import * as userService from '../handlers/user';
 import * as restaurantService from '../handlers/restaurant';
 import * as dishService from '../handlers/dish';
@@ -70,6 +76,37 @@ const restaurantType = new GraphQLObjectType({
         }
     })
 });
+
+const currentRestaurant = new GraphQLObjectType({
+    name: "CurrentRestaurant",
+    fields: () => ({
+        id: {
+            type: GraphQLID
+        },
+        name: {
+            type: GraphQLString
+        },
+        cuisine: {
+            type: GraphQLString
+        },
+        image: {
+            type: GraphQLString
+        },
+        address: {
+            type: GraphQLString
+        },
+        zipcode: {
+            type: GraphQLInt
+        },
+        user_id: {
+            type: GraphQLID
+        },
+        menu: {
+            type: new GraphQLList(restaurantMenuType)
+        }
+    })
+})
+
 const dishType = new GraphQLObjectType({
     name: "Dish",
     fields: () => ({
@@ -104,7 +141,7 @@ const restaurantMenuType = new GraphQLObjectType({
             type: GraphQLString
         },
         dishes: {
-            type: new GraphQLList(itemType)
+            type: new GraphQLList(dishType)
         }
     })
 });
@@ -190,25 +227,29 @@ const Mutation = new GraphQLObjectType({
                         email: args.email
                     }
                 }).then(user => {
-                    if (!user) {
-                        // User already exists
-                    }
-                    return Users.create({
-                        first_name: args.first_name,
-                        last_name: args.last_name,
-                        email: args.email,
-                        password: args.password,
-                        account_type: args.type,
-                        phone: args.phone,
-                        address: args.address
-                    }).then(user => {
-                        return Users.findOne({
-                            where: {
-                                email: user.email
-                            }
-                        }).then(user => {
-                            return user;
-                        });
+                    return bcrypt.compare(args.password, user.password).then(result => {
+                        if (!result) {
+                            console.log("Password mismatch");
+                            return done(null, false);
+                        }
+                        const {
+                            id,
+                            first_name,
+                            last_name,
+                            email,
+                            account_type,
+                            phone,
+                            address
+                        } = user;
+                        return {
+                            id,
+                            first_name,
+                            last_name,
+                            email,
+                            account_type,
+                            phone,
+                            address
+                        }
                     });
                 });
             }
@@ -356,7 +397,7 @@ const Mutation = new GraphQLObjectType({
             }
         },
         getDish: {
-            type: itemType,
+            type: dishType,
             args: {
                 Dish_id: {
                     type: GraphQLID
@@ -369,7 +410,7 @@ const Mutation = new GraphQLObjectType({
             }
         },
         addDish: {
-            type: itemType,
+            type: dishType,
             args: {
                 name: {
                     type: GraphQLString
@@ -405,6 +446,19 @@ const Mutation = new GraphQLObjectType({
             },
             resolve(parent, args) {
                 return dishService.searchDishes(args.search_key).then(result => {
+                    return result;
+                })
+            }
+        },
+        getCurrentRestaurant: {
+            type: currentRestaurant,
+            args: {
+                restaurant_id: {
+                    type: GraphQLID
+                }
+            },
+            resolve(parent, args) {
+                return restaurantService.getRestaurantDetails(args.restaurant_id).then(result => {
                     return result;
                 })
             }

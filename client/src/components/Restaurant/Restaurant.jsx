@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { graphql, compose } from "react-apollo";
 import { buyerActions } from "../../js/actions/index";
+import {
+  getCurrentRestaurant,
+  getRestaurantMenu
+} from "../../mutations/restaurantMutations";
 import { Container, Row, Card, Form, Col } from "react-bootstrap";
 import _ from "lodash";
 import Navigbar from "../Navbar/Navbar";
@@ -23,9 +28,24 @@ class Restaurant extends Component {
     };
   }
   componentDidMount() {
-    this.props.getRestaurantDetails({
-      restaurant_id: this.props.match.params.restaurant_id
-    });
+    this.props
+      .getCurrentRestaurant({
+        variables: { restaurant_id: this.props.match.params.restaurant_id }
+      })
+      .then(restaurantResponse => {
+        this.props
+          .getRestaurantMenu({
+            variables: {
+              restaurant_id: this.props.match.params.restaurant_id
+            }
+          })
+          .then(menuResponse => {
+            const current_restaurant =
+              restaurantResponse.data.getCurrentRestaurant;
+            current_restaurant.menu = menuResponse.data.getRestaurantMenu;
+            this.props.getRestaurantDetails(current_restaurant);
+          });
+      });
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.current_restaurant) {
@@ -55,18 +75,31 @@ class Restaurant extends Component {
       .value();
     if (dishes && dishes.length) {
       const cart = dishes.map(dish => {
-        if (this.state.cart[dish.id] && this.state.cart[dish.id] !== 0) {
+        if (
+          this.state.cart[dish.id] &&
+          parseInt(this.state.cart[dish.id]) !== 0
+        ) {
           return {
             id: dish.id,
             name: dish.name,
             quantity: this.state.cart[dish.id],
             price: dish.price ? dish.price * this.state.cart[dish.id] : 0
           };
+        } else if (parseInt(this.state.cart[dish.id]) === 0) {
+          return {
+            id: dish.id,
+            name: dish.name
+          };
         }
       });
-      this.props.addToCart({
-        cart: _.compact(cart)
-      });
+      if (_.compact(cart) && _.compact(cart).length) {
+        this.props.addToCart({
+          cart: _.chain(cart)
+            .compact()
+            .filter("price")
+            .value()
+        });
+      }
     }
   };
   render() {
@@ -167,7 +200,8 @@ const mapDispatchToProps = dispatch => ({
   addToCart: payload => dispatch(buyerActions.addToCart(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+export default compose(
+  graphql(getCurrentRestaurant, { name: "getCurrentRestaurant" }),
+  graphql(getRestaurantMenu, { name: "getRestaurantMenu" }),
+  connect(mapStateToProps, mapDispatchToProps)
 )(Restaurant);
