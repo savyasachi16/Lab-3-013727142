@@ -47,7 +47,7 @@ npm start
 ```
 
 To use the application, visit the following url from your browser:
-http://localhost:3001/
+http://localhost:3000/
 
 ## License
 
